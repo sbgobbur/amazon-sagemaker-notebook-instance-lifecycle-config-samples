@@ -88,13 +88,14 @@ def get_notebook_name():
         _logs = json.load(logs)
     return _logs['ResourceName']
 
-def get_terminals(dir):
+# use mtime of pseudo terminal slaves under /dev/pts to determine user terminal activity
+def get_terminals():
     terminals = {}
+    dir = '/dev/pts'
     for pts in os.listdir(dir):
         if pts.isdigit():
-            pts_path = dir + '/' + pts
-            mtime = os.path.getmtime(pts_path)
-            terminals[pts_path] = datetime.fromtimestamp(mtime).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+            mtime = os.path.getmtime(dir + '/' + pts)
+            terminals[pts] = datetime.fromtimestamp(mtime).strftime("%Y-%m-%dT%H:%M:%S.%fz")
     return terminals
 
 session_count = 0
@@ -122,7 +123,7 @@ if len(data) > 0:
             idle = False
 
 if not ignore_terminals:
-    terminals = get_terminals('/dev/pts')
+    terminals = get_terminals()
     terminal_count = len(terminals)
     for pts in terminals:
         if not is_idle(terminals[pts]):
