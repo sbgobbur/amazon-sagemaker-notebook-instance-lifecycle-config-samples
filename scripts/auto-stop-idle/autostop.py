@@ -75,7 +75,7 @@ if missingConfiguration:
 
 
 def is_idle(last_activity):
-    last_activity = datetime.strptime(last_activity,"%Y-%m-%dT%H:%M:%S.%fz")
+    last_activity = datetime.strptime(last_activity,"%Y-%m-%dT%H:%M:%S.%fZ")
     if (datetime.now() - last_activity).total_seconds() > time:
         return True
     else:
@@ -92,10 +92,11 @@ def get_notebook_name():
 def get_terminals():
     terminals = {}
     dir = '/dev/pts'
-    for pts in os.listdir(dir):
-        if pts.isdigit():
-            mtime = os.path.getmtime(dir + '/' + pts)
-            terminals[pts] = datetime.fromtimestamp(mtime).strftime("%Y-%m-%dT%H:%M:%S.%fz")
+    if os.path.isdir(dir):
+        for pts in os.listdir(dir):
+            if pts.isdigit():
+                mtime = os.path.getmtime(dir + '/' + pts)
+                terminals[pts] = datetime.fromtimestamp(mtime).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
     return terminals
 
 session_count = 0
@@ -134,7 +135,7 @@ if session_count == 0 and terminal_count == 0:
     uptime = client.describe_notebook_instance(
         NotebookInstanceName=get_notebook_name()
     )['LastModifiedTime']
-    if not is_idle(uptime.strftime("%Y-%m-%dT%H:%M:%S.%fz")):
+    if not is_idle(uptime.strftime("%Y-%m-%dT%H:%M:%S.%fZ")):
         idle = False
 
 if idle:
